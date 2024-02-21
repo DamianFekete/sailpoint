@@ -34,6 +34,8 @@ j-help() {
     echo '  ... | j-log-3 | less'
     echo '  ... | j-log-detailed | less'
     echo '  ... | jq | less'
+    echo "  Ignore lines that don't begin with {"
+    echo '  $ tail -10000 ~/log/ccg.log | j-json-only | ...'
     echo ''
     echo '  $ tail -10000 ~/log/ccg.log | jq-log-2 | less'
     echo '  $ tail -10000 ~/log/ccg.log | j-filter-... | jq-log-2 | less'
@@ -93,10 +95,14 @@ j-log-2() {
 }
 
 j-log-3() {
-    jq -r '[."@timestamp", .level, (.Application | sub(" \\[source\\]"; "") | rpad(30;" "))[0:20], (.Operation | rpad(15;" "))[0:15], (.method | rpad(20;" "))[0:20], .message, .exception.exception_message] | @tsv'
+    jq -r '[."@timestamp", .level, (.Application | select (. != null) | sub(" \\[source\\]"; "") | rpad(30;" "))[0:20], (.Operation | rpad(15;" "))[0:15], (.method | rpad(20;" "))[0:20], .message, .exception.exception_message] | @tsv'
 }
 
 
 j-log-detailed() {
     jq -r '[."@timestamp", .level, .Application, .Operation, .method, .message, .exception.exception_message] | @tsv'
+}
+
+j-json-only() {
+    grep ^{
 }
